@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Southwest Gas HR · Resource Management</title>
+<meta name="description" content="Resource planning and workload management for Southwest Gas Human Resources." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='14' y='14' width='36' height='36' rx='9' transform='rotate(45 34 34)' fill='%23111'/%3E%3Cpolyline points='22,28 28,44 34,32 40,44 46,28' fill='none' stroke='%23fff' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<style>
+  /* ============================== Design Tokens ============================== */
+  :root{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --ink:#1d1d1f;
+    --ink-2:#48484a;
+    --muted:#737378;
+    --faint:#9a9aa0;
+    --line:#e7e7ec;
+    --line-2:#f0f0f3;
+
+    --brand:#0a6dd6;
+    --brand-2:#0858ad;
+    --brand-tint:#eaf3fd;
+
+    --green:#1f9d54;  --green-bg:#e7f6ec;
+    --amber:#d9870b;  --amber-bg:#fdf2dd;
+    --red:#dc3b40;    --red-bg:#fcebec;
+    --violet:#6a51d6; --violet-bg:#efebfb;
+    --slate:#7b7b85;  --slate-bg:#f0f0f3;
+
+    --shadow-sm:0 1px 2px rgba(17,17,20,.05), 0 1px 1px rgba(17,17,20,.04);
+    --shadow:0 1px 2px rgba(17,17,20,.04), 0 10px 30px rgba(17,17,20,.06);
+    --shadow-lg:0 20px 60px rgba(17,17,20,.18);
+
+    --r-lg:20px; --r:16px; --r-sm:11px; --pill:999px;
+    --maxw:1280px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-size:14px;
+    line-height:1.45;
+  }
+  button{font-family:inherit}
+  ::selection{background:#bedcf7}
+
+  /* ============================== App Bar / Logo ============================== */
+  .appbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--line);
+  }
+  .appbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:12px 28px;
+    display:flex; align-items:center; gap:20px;
+  }
+  .logo{display:flex; align-items:center; gap:14px; color:var(--ink); user-select:none}
+  .logo-mark{width:42px; height:42px; flex:none; color:var(--ink)}
+  .logo-lock{display:flex; align-items:stretch; gap:13px}
+  .logo-left{display:flex; flex-direction:column; justify-content:center; line-height:1}
+  .logo-brand{font-weight:800; letter-spacing:.04em; font-size:15px}
+  .logo-tag{font-size:9.5px; font-weight:700; letter-spacing:.22em; color:var(--muted); margin-top:3px}
+  .logo-div{width:1.5px; background:var(--line); border-radius:2px}
+  .logo-hr{display:flex; flex-direction:column; justify-content:center; font-weight:800; letter-spacing:.02em; font-size:15px; line-height:1.04}
+  .spacer{flex:1}
+  .appbar-actions{display:flex; align-items:center; gap:8px}
+  .who{display:flex; align-items:center; gap:10px; padding-left:14px; margin-left:6px; border-left:1px solid var(--line)}
+  .who-meta{text-align:right; line-height:1.2}
+  .who-meta b{font-size:12.5px; font-weight:650}
+  .who-meta span{font-size:11px; color:var(--muted)}
+  .who-av{width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--brand),#3f9bf0); color:#fff; display:grid; place-items:center; font-weight:700; font-size:12.5px; flex:none}
+
+  /* ============================== Tabs ============================== */
+  .tabs{
+    position:sticky; top:67px; z-index:40;
+    background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:1px solid var(--line);
+  }
+  .tabs-inner{max-width:var(--maxw); margin:0 auto; padding:0 28px; display:flex; gap:4px}
+  .tab{
+    appearance:none; border:0; background:transparent; cursor:pointer;
+    padding:14px 16px 13px; font-size:14px; font-weight:550; color:var(--muted);
+    border-bottom:2.5px solid transparent; margin-bottom:-1px; transition:color .15s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--brand); border-bottom-color:var(--brand); font-weight:650}
+  .tab svg{width:17px; height:17px}
+  .tab .badge{background:var(--red); color:#fff; font-size:10px; font-weight:700; border-radius:var(--pill); padding:1px 6px; min-width:17px; text-align:center}
+
+  /* ============================== Layout ============================== */
+  .content{max-width:var(--maxw); margin:0 auto; padding:26px 28px 80px}
+  .view{animation:rise .34s cubic-bezier(.2,.7,.3,1)}
+  @keyframes rise{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+
+  .page-head{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap}
+  .page-title{font-size:27px; font-weight:750; letter-spacing:-.02em; margin:0}
+  .page-sub{color:var(--muted); margin:5px 0 0; font-size:13.5px}
+
+  /* ============================== Buttons ============================== */
+  .btn{
+    appearance:none; cursor:pointer; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink); font-size:13px; font-weight:600;
+    padding:8px 13px; border-radius:var(--r-sm); display:inline-flex; align-items:center; gap:7px;
+    transition:all .14s ease; white-space:nowrap;
+  }
+  .btn:hover{background:#fafafb; border-color:#dadae0; transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn svg{width:15px; height:15px}
+  .btn-primary{background:var(--brand); border-color:var(--brand); color:#fff}
+  .btn-primary:hover{background:var(--brand-2); border-color:var(--brand-2)}
+  .btn-danger{color:var(--red)}
+  .btn-danger:hover{background:var(--red-bg); border-color:#f3c9cb}
+  .btn-sm{padding:6px 10px; font-size:12px}
+  .btn-ghost{border-color:transparent; background:transparent}
+  .btn-ghost:hover{background:var(--line-2); border-color:transparent}
+  .icon-btn{padding:7px; border-radius:9px}
+  .icon-btn svg{width:16px; height:16px}
+
+  /* ============================== Panels / Cards ============================== */
+  .grid{display:grid; gap:16px}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow-sm)}
+  .panel-pad{padding:20px 22px}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px}
+  .panel-head h3{margin:0; font-size:15.5px; font-weight:680; letter-spacing:-.01em}
+  .panel-head .hint{font-size:12px; color:var(--muted)}
+
+  /* KPI cards */
+  .kpis{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px}
+  .kpi{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:16px 17px; box-shadow:var(--shadow-sm); position:relative; overflow:hidden; transition:transform .16s, box-shadow .16s}
+  .kpi:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+  .kpi .k-top{display:flex; align-items:center; gap:9px; color:var(--muted)}
+  .kpi .k-ico{width:30px; height:30px; border-radius:9px; display:grid; place-items:center; flex:none}
+  .kpi .k-ico svg{width:16px; height:16px}
+  .kpi .k-label{font-size:12px; font-weight:600; letter-spacing:.01em}
+  .kpi .k-val{font-size:30px; font-weight:760; letter-spacing:-.03em; margin-top:10px; line-height:1}
+  .kpi .k-val small{font-size:15px; font-weight:600; color:var(--muted); letter-spacing:0}
+  .kpi .k-foot{font-size:11.5px; color:var(--muted); margin-top:6px}
+
+  /* Status pills */
+  .pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:650; padding:3px 9px 3px 8px; border-radius:var(--pill); letter-spacing:.01em; white-space:nowrap}
+  .pill .dot{width:7px; height:7px; border-radius:50%; flex:none}
+  .pill-healthy{background:var(--green-bg); color:#147a3f} .pill-healthy .dot{background:var(--green)}
+  .pill-tight{background:var(--amber-bg); color:#9c6107} .pill-tight .dot{background:var(--amber)}
+  .pill-over{background:var(--red-bg); color:#b32a2f} .pill-over .dot{background:var(--red)}
+  .pill-review{background:var(--violet-bg); color:#553fb0} .pill-review .dot{background:var(--violet)}
+  .pill-unavail{background:var(--slate-bg); color:#5f5f68} .pill-unavail .dot{background:var(--slate)}
+  .pill-ghost{background:var(--line-2); color:var(--ink-2)} .pill-ghost .dot{background:var(--faint)}
+
+  .prio{font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:6px}
+  .prio-Critical{background:var(--red-bg); color:#b32a2f}
+  .prio-High{background:var(--amber-bg); color:#9c6107}
+  .prio-Medium{background:var(--brand-tint); color:var(--brand-2)}
+  .prio-Low{background:var(--slate-bg); color:#5f5f68}
+
+  /* Avatars */
+  .av{width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:12.5px; color:#fff; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+  .av-sm{width:26px; height:26px; font-size:10.5px}
+  .av-lg{width:50px; height:50px; font-size:17px}
+  .av-stack{display:flex}
+  .av-stack .av{margin-left:-8px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), 0 0 0 2px #fff}
+  .av-stack .av:first-child{margin-left:0}
+  .av-more{width:26px; height:26px; border-radius:50%; background:var(--line-2); color:var(--muted); display:grid; place-items:center; font-size:10.5px; font-weight:700; margin-left:-8px; box-shadow:0 0 0 2px #fff}
+
+  /* Rings & bars */
+  .ring-wrap{position:relative; display:inline-grid; place-items:center}
+  .ring-wrap .ring-txt{position:absolute; text-align:center; line-height:1}
+  .ring-txt b{font-size:14px; font-weight:740; letter-spacing:-.02em}
+  .ring-txt span{display:block; font-size:8.5px; color:var(--muted); font-weight:600; letter-spacing:.04em; text-transform:uppercase; margin-top:1px}
+
+  .track{height:8px; background:var(--line-2); border-radius:var(--pill); overflow:hidden; position:relative}
+  .track .fill{height:100%; border-radius:var(--pill); transition:width .5s cubic-bezier(.2,.7,.3,1)}
+  .track .marker{position:absolute; top:-2px; width:2px; height:12px; background:var(--ink); border-radius:2px; opacity:.55}
+
+  /* ============================== People grid ============================== */
+  .toolbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:18px}
+  .search{position:relative; flex:1; min-width:200px; max-width:340px}
+  .search svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--faint)}
+  .search input{width:100%; padding:9px 12px 9px 34px; border:1px solid var(--line); border-radius:var(--r-sm); font-size:13.5px; background:var(--panel); color:var(--ink); outline:none; transition:border-color .15s, box-shadow .15s}
+  .search input:focus{border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-tint)}
+  .select{position:relative}
+  select.input,.input{appearance:none; border:1px solid var(--line); border-radius:var(--r-sm); padding:9px 12px; font-size:13px; font-weight:550; background:var(--panel); color:var(--ink); outline:none; cursor:pointer; transition:border-color .15s, box-shadow .15s}
+  select.input{padding-right:30px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' stroke='%23737378' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center}
+  .input:focus,select.input:focus{border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-tint)}
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px}
+
+  .pcard{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px; box-shadow:var(--shadow-sm); transition:transform .16s, box-shadow .16s; position:relative}
+  .pcard:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+  .pcard.is-over{border-color:#f3cdcf}
+  .pcard.is-review{border-color:#ddd3f6}
+  .pcard.is-unavail{opacity:.92}
+  .pcard-top{display:flex; gap:13px; align-items:flex-start}
+  .pcard-id{flex:1; min-width:0}
+  .pcard-name{font-size:16px; font-weight:680; letter-spacing:-.01em; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pcard-role{color:var(--muted); font-size:12.5px; margin-top:2px}
+  .pcard-actions{position:absolute; top:14px; right:14px; display:flex; gap:2px; opacity:0; transition:opacity .15s}
+  .pcard:hover .pcard-actions{opacity:1}
+  .pcard-mid{display:flex; align-items:center; gap:16px; margin:16px 0 4px}
+  .pcard-stats{flex:1}
+  .stat-row{display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; margin-bottom:8px}
+  .stat-row .lab{color:var(--muted)}
+  .stat-row .num{font-weight:680; font-size:13.5px}
+  .pa-bars{margin-top:12px}
+  .pa-line{display:flex; align-items:center; gap:9px; margin-bottom:6px}
+  .pa-line .pa-lab{width:54px; font-size:11px; color:var(--muted); font-weight:600}
+  .pa-line .track{flex:1}
+  .pa-line .pa-val{width:42px; text-align:right; font-size:11.5px; font-weight:650; font-variant-numeric:tabular-nums}
+  .pcard-foot{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:15px; padding-top:14px; border-top:1px solid var(--line-2)}
+  .proj-chips{display:flex; flex-wrap:wrap; gap:5px}
+  .chip{font-size:11px; font-weight:600; background:var(--line-2); color:var(--ink-2); padding:3px 8px; border-radius:var(--pill); white-space:nowrap}
+  .chip.warn{background:var(--red-bg); color:#b32a2f}
+
+  /* ============================== Projects ============================== */
+  .prcard{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px; box-shadow:var(--shadow-sm); transition:transform .16s, box-shadow .16s; position:relative}
+  .prcard:hover{transform:translateY(-2px); box-shadow:var(--shadow)}
+  .prcard-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+  .prcard-code{font-size:11px; font-weight:700; color:var(--brand); letter-spacing:.04em}
+  .prcard-name{font-size:16.5px; font-weight:700; letter-spacing:-.015em; margin:3px 0 0}
+  .prcard-actions{display:flex; gap:2px; opacity:0; transition:opacity .15s; position:absolute; top:14px; right:14px}
+  .prcard:hover .prcard-actions{opacity:1}
+  .cov-head{display:flex; align-items:baseline; justify-content:space-between; margin:16px 0 7px}
+  .cov-head .big{font-size:21px; font-weight:740; letter-spacing:-.02em}
+  .cov-head .cap{font-size:12px; color:var(--muted); font-weight:550}
+  .prcard-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px}
+  .mini{background:var(--line-2); border-radius:10px; padding:9px 11px}
+  .mini .ml{font-size:10.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em}
+  .mini .mv{font-size:15px; font-weight:700; margin-top:2px}
+  .prcard-foot{display:flex; align-items:center; justify-content:space-between; margin-top:15px; padding-top:14px; border-top:1px solid var(--line-2)}
+
+  /* ============================== Tables ============================== */
+  .tbl-wrap{overflow-x:auto; border-radius:var(--r-lg)}
+  table.tbl{width:100%; border-collapse:collapse; font-size:13px}
+  table.tbl th{text-align:left; font-size:11px; font-weight:650; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--panel)}
+  table.tbl td{padding:11px 14px; border-bottom:1px solid var(--line-2); vertical-align:middle}
+  table.tbl tr:last-child td{border-bottom:0}
+  table.tbl tbody tr{transition:background .12s}
+  table.tbl tbody tr:hover{background:#fafafb}
+  .td-person{display:flex; align-items:center; gap:10px}
+  .td-person b{font-weight:620}
+  .num-cell{font-variant-numeric:tabular-nums; font-weight:600}
+  .var-pos{color:var(--red); font-weight:680}
+  .var-neg{color:var(--green); font-weight:680}
+  .var-zero{color:var(--muted)}
+  .row-actions{display:flex; gap:2px; justify-content:flex-end}
+
+  /* ============================== Dashboard specifics ============================== */
+  .dash-grid{display:grid; grid-template-columns:1.55fr 1fr; gap:16px}
+  .dash-grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .team-row{display:flex; align-items:center; gap:14px; padding:11px 0; border-bottom:1px solid var(--line-2)}
+  .team-row:last-child{border-bottom:0}
+  .team-dot{width:10px; height:10px; border-radius:3px; flex:none}
+  .team-name{width:152px; flex:none}
+  .team-name b{font-size:13.5px; font-weight:620; display:block}
+  .team-name span{font-size:11px; color:var(--muted)}
+  .team-bar{flex:1}
+  .team-meta{width:118px; flex:none; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:4px}
+  .team-meta .util{font-size:14px; font-weight:700; font-variant-numeric:tabular-nums}
+
+  .legend{display:flex; flex-direction:column; gap:9px; margin-top:4px}
+  .legend-item{display:flex; align-items:center; gap:9px; font-size:13px}
+  .legend-item .dot{width:9px; height:9px; border-radius:3px}
+  .legend-item .lg-lab{flex:1; color:var(--ink-2)}
+  .legend-item .lg-num{font-weight:700; font-variant-numeric:tabular-nums}
+  .donut-center{display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .donut-center b{font-size:30px; font-weight:760; letter-spacing:-.03em; line-height:1}
+  .donut-center span{font-size:11px; color:var(--muted); font-weight:600}
+
+  .pa-overall{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+  .pa-big{flex:none}
+  .pa-big .lab{font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em}
+  .pa-big .val{font-size:26px; font-weight:740; letter-spacing:-.02em; margin-top:2px}
+  .pa-big .val.plan{color:var(--brand)}
+  .pa-big .val.act{color:var(--ink)}
+  .pa-teamlist{margin-top:6px}
+  .pa-teamrow{display:flex; align-items:center; gap:12px; margin-bottom:11px}
+  .pa-teamrow .nm{width:150px; font-size:12.5px; font-weight:560; flex:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pa-teamrow .bars{flex:1; display:flex; flex-direction:column; gap:3px}
+  .twobar{height:7px; border-radius:var(--pill)}
+  .pa-teamrow .vv{width:74px; text-align:right; font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+  .risk-list{display:flex; flex-direction:column}
+  .risk{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line-2); align-items:flex-start}
+  .risk:last-child{border-bottom:0}
+  .risk-ico{width:30px; height:30px; border-radius:9px; display:grid; place-items:center; flex:none}
+  .risk-ico svg{width:16px; height:16px}
+  .risk-body{flex:1; min-width:0}
+  .risk-body b{font-weight:620; font-size:13.5px}
+  .risk-body p{margin:2px 0 0; color:var(--muted); font-size:12.5px}
+  .risk-sev{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:2px 8px; border-radius:6px; flex:none; margin-top:2px}
+
+  .proj-need{display:flex; align-items:center; gap:13px; padding:12px 0; border-bottom:1px solid var(--line-2)}
+  .proj-need:last-child{border-bottom:0}
+  .proj-need .pn-id{flex:1; min-width:0}
+  .proj-need .pn-id b{font-size:13.5px; font-weight:620}
+  .proj-need .pn-id .sub{font-size:11.5px; color:var(--muted)}
+  .proj-need .pn-bar{width:120px; flex:none}
+  .proj-need .pn-cov{width:54px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; font-size:14px}
+
+  /* ============================== What If ============================== */
+  .wi-banner{background:linear-gradient(120deg,#0a6dd6,#3f9bf0); color:#fff; border-radius:var(--r-lg); padding:20px 24px; margin-bottom:18px; display:flex; align-items:center; gap:18px; box-shadow:0 12px 30px rgba(10,109,214,.22)}
+  .wi-banner .wi-ico{width:46px; height:46px; border-radius:13px; background:rgba(255,255,255,.18); display:grid; place-items:center; flex:none}
+  .wi-banner .wi-ico svg{width:24px; height:24px}
+  .wi-banner h3{margin:0; font-size:18px; font-weight:720}
+  .wi-banner p{margin:3px 0 0; font-size:13px; opacity:.92}
+  .wi-banner .wi-actions{margin-left:auto; display:flex; gap:8px}
+  .wi-banner .btn{background:rgba(255,255,255,.16); border-color:rgba(255,255,255,.28); color:#fff}
+  .wi-banner .btn:hover{background:rgba(255,255,255,.26)}
+  .wi-banner .btn-white{background:#fff; color:var(--brand-2); border-color:#fff}
+  .wi-banner .btn-white:hover{background:#f0f6fe}
+
+  .compare{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px}
+  .cmp{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:15px 16px; box-shadow:var(--shadow-sm)}
+  .cmp .cl{font-size:11.5px; color:var(--muted); font-weight:600}
+  .cmp .cflow{display:flex; align-items:baseline; gap:8px; margin-top:9px}
+  .cmp .base{font-size:15px; font-weight:600; color:var(--faint)}
+  .cmp .arr{color:var(--faint); font-size:13px}
+  .cmp .now{font-size:24px; font-weight:760; letter-spacing:-.02em}
+  .cmp .delta{font-size:11.5px; font-weight:700; margin-top:7px; display:inline-flex; align-items:center; gap:4px}
+  .delta.good{color:var(--green)} .delta.bad{color:var(--red)} .delta.flat{color:var(--faint)}
+
+  .wi-controls{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px; margin-bottom:18px}
+  .wi-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--r-lg); padding:18px; box-shadow:var(--shadow-sm)}
+  .wi-card h4{margin:0 0 3px; font-size:14.5px; font-weight:680; display:flex; align-items:center; gap:9px}
+  .wi-card .wi-h-ico{width:28px; height:28px; border-radius:8px; background:var(--brand-tint); color:var(--brand); display:grid; place-items:center; flex:none}
+  .wi-card .wi-h-ico svg{width:15px; height:15px}
+  .wi-card .wi-desc{font-size:12px; color:var(--muted); margin:0 0 14px}
+  .field{margin-bottom:10px}
+  .field label{display:block; font-size:11.5px; font-weight:600; color:var(--ink-2); margin-bottom:5px}
+  .field .input,.field select.input{width:100%}
+  .field-row{display:flex; gap:9px}
+  .field-row .field{flex:1}
+  .range-row{display:flex; align-items:center; gap:12px}
+  .range-row input[type=range]{flex:1; accent-color:var(--brand)}
+  .range-val{min-width:62px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; font-size:14px}
+
+  .wi-log{margin-top:2px}
+  .wi-log h3{font-size:14px}
+  .log-item{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line-2); font-size:13px}
+  .log-item:last-child{border-bottom:0}
+  .log-item .lg-dot{width:8px; height:8px; border-radius:50%; background:var(--brand); flex:none}
+  .log-empty{color:var(--muted); font-size:13px; padding:14px 0; text-align:center}
+
+  /* ============================== Modal ============================== */
+  .overlay{position:fixed; inset:0; background:rgba(20,20,26,.42); backdrop-filter:blur(3px); z-index:100; display:grid; place-items:center; padding:20px; opacity:0; animation:fade .2s forwards}
+  @keyframes fade{to{opacity:1}}
+  .modal{background:var(--panel); border-radius:22px; width:100%; max-width:460px; box-shadow:var(--shadow-lg); transform:scale(.96); animation:pop .26s cubic-bezier(.2,.8,.3,1) forwards; max-height:90vh; overflow:auto}
+  @keyframes pop{to{transform:scale(1)}}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:20px 22px 0}
+  .modal-head h3{margin:0; font-size:18px; font-weight:720; letter-spacing:-.01em}
+  .modal-body{padding:18px 22px}
+  .modal-foot{padding:14px 22px 20px; display:flex; gap:9px; justify-content:flex-end; border-top:1px solid var(--line-2); margin-top:4px}
+  .confirm-text{font-size:14px; color:var(--ink-2); line-height:1.5}
+
+  /* ============================== Toast ============================== */
+  .toasts{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:10px; align-items:center}
+  .toast{background:#1d1d1f; color:#fff; padding:11px 18px; border-radius:var(--pill); font-size:13px; font-weight:550; box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:9px; animation:toastIn .3s cubic-bezier(.2,.8,.3,1)}
+  .toast svg{width:16px; height:16px; color:#5fdc89}
+  @keyframes toastIn{from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none}}
+  .toast.out{animation:toastOut .3s forwards}
+  @keyframes toastOut{to{opacity:0; transform:translateY(8px)}}
+
+  .empty{text-align:center; padding:54px 20px; color:var(--muted)}
+  .empty svg{width:42px; height:42px; color:var(--faint); margin-bottom:10px}
+  .empty b{display:block; color:var(--ink); font-size:15px; font-weight:640; margin-bottom:4px}
+
+  /* ============================== Responsive ============================== */
+  @media (max-width:1080px){
+    .kpis,.compare{grid-template-columns:repeat(3,1fr)}
+    .dash-grid,.dash-grid-2{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    .appbar-inner,.tabs-inner,.content{padding-left:16px; padding-right:16px}
+    .kpis,.compare{grid-template-columns:repeat(2,1fr)}
+    .who{display:none}
+    .logo-hr{font-size:13px}
+    .logo-brand{font-size:13px}
+    .tabs-inner{overflow-x:auto}
+    .tab{padding:13px 11px}
+    .cards{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================== App Bar ============================== -->
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="logo" title="Southwest Gas — Human Resources">
+      <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="12" y="12" width="35" height="35" rx="8" transform="rotate(45 30 30)" fill="currentColor" opacity=".28"/>
+        <rect x="16" y="16" width="36" height="36" rx="9" transform="rotate(45 34 34)" fill="currentColor"/>
+        <polyline points="22,28 28,44 34,32 40,44 46,28" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="logo-lock">
+        <div class="logo-left">
+          <div class="logo-brand">SOUTHWEST&nbsp;GAS</div>
+          <div class="logo-tag">RESOURCE&nbsp;MANAGEMENT</div>
+        </div>
+        <div class="logo-div"></div>
+        <div class="logo-hr"><span>HUMAN</span><span>RESOURCES</span></div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="appbar-actions">
+      <button class="btn" data-act="export-csv" title="Export assignments as CSV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        CSV
+      </button>
+      <button class="btn" data-act="export-json" title="Export full dataset as JSON">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-2M15 3h6v6M10 14L21 3"/></svg>
+        JSON
+      </button>
+      <button class="btn btn-danger" data-act="reset-demo" title="Reset to demo data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9 9 0 00-6.7 3M3 4v4h4"/></svg>
+        Reset
+      </button>
+      <div class="who">
+        <div class="who-meta">
+          <b id="whoName">HR Planning</b><br/>
+          <span id="whoDate">—</span>
+        </div>
+        <div class="who-av">HR</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================== Tabs ============================== -->
+<nav class="tabs">
+  <div class="tabs-inner" id="tabs">
+    <button class="tab active" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button class="tab" data-view="people">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0M16 11.5a3 3 0 100-6M20.5 20a5.2 5.2 0 00-5-5.2"/></svg>
+      People <span class="badge" id="badgePeople" style="display:none"></span>
+    </button>
+    <button class="tab" data-view="projects">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Projects <span class="badge" id="badgeProjects" style="display:none"></span>
+    </button>
+    <button class="tab" data-view="assignments">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>
+      Assignments
+    </button>
+    <button class="tab" data-view="whatif">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3h5M12 3v3.5M6.5 7.5l11 9M5 12a7 7 0 0014 0M7 20.5l2.5-3M17 20.5l-2.5-3"/></svg>
+      What&nbsp;If
+    </button>
+  </div>
+</nav>
+
+<!-- ============================== Main ============================== -->
+<main class="content" id="content"></main>
+
+<div class="toasts" id="toasts"></div>
+<div id="modalRoot"></div>
+
+<script>
+"use strict";
+(function(){
+
+/* ======================================================================
+   CONSTANTS
+   ====================================================================== */
+const STORE_KEY = "swg_hr_rm_v1";
+const TEAMS = ["Talent Acquisition","Total Rewards","People Analytics","Employee Relations","HR Operations","Learning & Development"];
+const PRIORITIES = ["Critical","High","Medium","Low"];
+const TEAM_COLOR = {
+  "Talent Acquisition":"#0a6dd6",
+  "Total Rewards":"#6a51d6",
+  "People Analytics":"#0f9b8e",
+  "Employee Relations":"#e07b1a",
+  "HR Operations":"#d6457f",
+  "Learning & Development":"#1f9d54"
+};
+const STATUS_COLOR = {
+  "Healthy":"#1f9d54","Tight":"#d9870b","Over Capacity":"#dc3b40","Needs Review":"#6a51d6","Unavailable":"#7b7b85"
+};
+const STATUS_PILL = {
+  "Healthy":"pill-healthy","Tight":"pill-tight","Over Capacity":"pill-over","Needs Review":"pill-review","Unavailable":"pill-unavail"
+};
+// Project health → color/pill
+const PROJ_COLOR = {"On Track":"#1f9d54","At Risk":"#d9870b","Needs Support":"#dc3b40","Over-allocated":"#6a51d6"};
+const PROJ_PILL = {"On Track":"pill-healthy","At Risk":"pill-tight","Needs Support":"pill-over","Over-allocated":"pill-review"};
+
+/* ======================================================================
+   DEMO DATA
+   ====================================================================== */
+function demoData(){
+  const people = [
+    p("Sarah Mitchell","HR Business Partner","Employee Relations",40),
+    p("James Carter","Senior Recruiter","Talent Acquisition",40),
+    p("Priya Patel","Benefits Analyst","Total Rewards",40),
+    p("Michael Torres","HRIS Analyst","People Analytics",40),
+    p("Emily Nguyen","Learning & Dev Specialist","Learning & Development",32),
+    p("David Reynolds","Compensation Manager","Total Rewards",40),
+    p("Jessica Brooks","Talent Acquisition Lead","Talent Acquisition",40),
+    p("Robert Kim","HR Generalist","HR Operations",40),
+    p("Amanda Foster","People Analytics Lead","People Analytics",40),
+    p("Carlos Mendez","Employee Relations Specialist","Employee Relations",40),
+    p("Lauren Scott","Onboarding Coordinator","HR Operations",40),
+    p("Kevin Walsh","Learning Designer","Learning & Development",40),
+  ];
+  const id = {};
+  people.forEach(pp=> id[pp.name]=pp.id);
+
+  const projects = [
+    pr("P-101","Annual Open Enrollment 2026","High",72,"Plan & launch 2026 benefits enrollment across all regions."),
+    pr("P-102","Workday HRIS Migration","Critical",80,"Migrate core HR systems to Workday with data validation."),
+    pr("P-103","Q3 Campus Recruiting Drive","High",50,"University hiring pipeline for early-career roles."),
+    pr("P-104","Leadership Development Program","Medium",40,"Cohort-based program for emerging people leaders."),
+    pr("P-105","Compensation Benchmarking Study","Medium",30,"Market pay analysis and salary band refresh."),
+    pr("P-106","DEI Initiative Rollout","High",36,"Company-wide diversity, equity & inclusion program."),
+    pr("P-107","Employee Engagement Survey","Medium",28,"Design, distribute & analyze annual engagement survey."),
+    pr("P-108","New Hire Onboarding Revamp","Medium",48,"Redesign the first-90-days onboarding experience."),
+    pr("P-109","Performance Review Cycle","High",36,"Operate mid-year performance & calibration cycle."),
+    pr("P-110","HR Policy Handbook Update","Low",24,"Refresh policies and the employee handbook."),
+  ];
+  const pid = {};
+  projects.forEach(x=> pid[x.code]=x.id);
+
+  const A = [];
+  const add=(person,code,role,planned,actual)=> A.push(asg(id[person],pid[code],role,planned,actual));
+  // Talent Acquisition
+  add("James Carter","P-103","Recruiting Lead",28,31);
+  add("James Carter","P-108","Contributor",8,7);
+  add("Jessica Brooks","P-103","Program Lead",18,16);
+  add("Jessica Brooks","P-106","Contributor",10,9);
+  add("Jessica Brooks","P-109","Contributor",6,6);
+  // Total Rewards
+  add("David Reynolds","P-101","Lead",28,33);
+  add("David Reynolds","P-105","Lead",16,15);
+  add("Priya Patel","P-101","Benefits Analyst",22,26);
+  add("Priya Patel","P-107","Contributor",8,7);
+  // People Analytics
+  add("Michael Torres","P-102","Technical Lead",36,47);
+  add("Amanda Foster","P-102","Data Architect",18,19);
+  add("Amanda Foster","P-107","Analytics Lead",12,11);
+  add("Amanda Foster","P-109","Analytics",8,8);
+  // Employee Relations
+  add("Sarah Mitchell","P-109","HRBP Lead",14,17);
+  add("Sarah Mitchell","P-106","Executive Sponsor",12,13);
+  add("Sarah Mitchell","P-110","Reviewer",16,18);
+  add("Carlos Mendez","P-107","Contributor",8,8);
+  add("Carlos Mendez","P-106","Coordinator",8,7);
+  add("Carlos Mendez","P-110","Writer",10,9);
+  // HR Operations
+  add("Robert Kim","P-108","Lead",18,17);
+  add("Robert Kim","P-101","Support",8,9);
+  add("Robert Kim","P-110","Contributor",6,6);
+  add("Lauren Scott","P-108","Coordinator",16,24);
+  add("Lauren Scott","P-101","Coordinator",8,9);
+  // Learning & Development
+  add("Emily Nguyen","P-104","Facilitator",20,22);
+  add("Emily Nguyen","P-106","Contributor",8,8);
+  add("Kevin Walsh","P-104","Designer",18,17);
+  add("Kevin Walsh","P-108","Trainer",8,8);
+  add("Kevin Walsh","P-101","Trainer",4,4);
+
+  return {people, projects, assignments:A, meta:{created:Date.now()}};
+
+  function p(name,role,team,capacity){ return {id:uid("u"), name, role, team, capacity, available:true}; }
+  function pr(code,name,priority,required,description){ return {id:uid("p"), code, name, priority, required, description}; }
+  function asg(personId,projectId,role,planned,actual){ return {id:uid("a"), personId, projectId, role, planned, actual}; }
+}
+
+/* ======================================================================
+   STATE + PERSISTENCE
+   ====================================================================== */
+let state = null;
+let scenario = null;          // What-If sandbox dataset (deep clone of state)
+const ui = {
+  view:"dashboard",
+  pSearch:"", pTeam:"all", pStatus:"all", pSort:"util-desc",
+  prSearch:"", prStatus:"all", prPrio:"all",
+  aSearch:"", aSort:"variance-desc",
+  wiLog:[],
+  focusId:null
+};
+
+function uid(prefix){ return prefix + Math.random().toString(36).slice(2,9); }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    const d = JSON.parse(raw);
+    if(d && Array.isArray(d.people) && Array.isArray(d.projects) && Array.isArray(d.assignments)) return d;
+  }catch(e){ /* ignore */ }
+  return null;
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){ /* storage may be full/blocked */ }
+  scenario = null; // baseline changed → reset sandbox lazily
+}
+function resetDemo(){
+  state = demoData();
+  save();
+  toast("Demo data restored");
+  render();
+}
+
+/* ======================================================================
+   COMPUTATION
+   ====================================================================== */
+function personAssignments(ds, personId){ return ds.assignments.filter(a=>a.personId===personId); }
+function projectAssignments(ds, projectId){ return ds.assignments.filter(a=>a.projectId===projectId); }
+function findPerson(ds,id){ return ds.people.find(p=>p.id===id); }
+function findProject(ds,id){ return ds.projects.find(p=>p.id===id); }
+
+function personStats(ds, person){
+  const list = personAssignments(ds, person.id);
+  const planned = list.reduce((s,a)=>s+num(a.planned),0);
+  const actual  = list.reduce((s,a)=>s+num(a.actual),0);
+  const cap = person.available ? num(person.capacity) : 0;
+  const util = cap>0 ? planned/cap : (planned>0 ? 99 : 0);
+  const variance = actual - planned;
+  const varPct = planned>0 ? Math.abs(variance)/planned : 0;
+  const status = personStatus(person, {planned, actual, cap, util, variance, varPct});
+  const free = Math.max(0, num(person.capacity) - planned);
+  return {planned, actual, cap, util, variance, varPct, status, free, count:list.length, list};
+}
+function personStatus(person, s){
+  if(!person.available) return "Unavailable";
+  if(s.util > 1.0) return "Over Capacity";
+  if(s.varPct >= 0.2 && Math.abs(s.variance) >= 4) return "Needs Review";
+  if(s.util >= 0.85) return "Tight";
+  return "Healthy";
+}
+
+function teamStats(ds, team){
+  const members = ds.people.filter(p=>p.team===team);
+  let planned=0, actual=0, cap=0, over=0;
+  members.forEach(m=>{
+    const s = personStats(ds,m);
+    planned+=s.planned; actual+=s.actual; cap += (m.available?num(m.capacity):0);
+    if(s.status==="Over Capacity") over++;
+  });
+  const util = cap>0 ? planned/cap : (planned>0?99:0);
+  const free = Math.max(0, cap-planned);
+  let status = "Healthy";
+  if(util>1.0) status="Over Capacity"; else if(util>=0.9) status="Tight";
+  return {team, members, count:members.length, planned, actual, cap, util, free, over, status};
+}
+
+function projectStats(ds, project){
+  const list = projectAssignments(ds, project.id);
+  const planned = list.reduce((s,a)=>s+num(a.planned),0);
+  const actual  = list.reduce((s,a)=>s+num(a.actual),0);
+  const required = num(project.required);
+  const coverage = required>0 ? planned/required : (planned>0?1.5:0);
+  const people = [...new Set(list.map(a=>a.personId))].map(id=>findPerson(ds,id)).filter(Boolean);
+  let health = "On Track";
+  if(coverage < 0.75) health="Needs Support";
+  else if(coverage < 0.95) health="At Risk";
+  else if(coverage > 1.2) health="Over-allocated";
+  const gap = required - planned; // positive => understaffed hours
+  return {planned, actual, required, coverage, people, health, gap, count:list.length, list};
+}
+
+function kpis(ds){
+  const active = ds.people.filter(p=>p.available);
+  let totalCap=0, totalPlanned=0, over=0, free=0, stranded=0;
+  ds.people.forEach(p=>{
+    const s = personStats(ds,p);
+    if(p.available){
+      totalCap += num(p.capacity);
+      totalPlanned += s.planned;
+      if(s.status==="Over Capacity") over++;
+      free += s.free;
+    }else{
+      stranded += s.planned;
+    }
+  });
+  const avgUtil = totalCap>0 ? totalPlanned/totalCap : 0;
+  const needSupport = ds.projects.filter(pr=>projectStats(ds,pr).coverage < 0.75).length;
+  const totalActual = ds.assignments.reduce((s,a)=>s+num(a.actual),0);
+  const planVsActual = totalPlanned>0 ? (totalActual-totalPlanned)/totalPlanned : 0;
+  return {
+    activeCount:active.length, peopleCount:ds.people.length,
+    totalCap, totalPlanned, totalActual,
+    avgUtil, over, free, stranded, needSupport, planVsActual,
+    projectCount:ds.projects.length
+  };
+}
+
+function num(v){ const n = Number(v); return isFinite(n) && n>0 ? n : (isFinite(n)?n:0); }
+function initials(name){
+  const parts = String(name).trim().split(/\s+/);
+  return ((parts[0]||"")[0]||"") + ((parts[parts.length-1]||"")[0]||"");
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function pct(x){ return Math.round(x*100)+"%"; }
+function fmt(n){ return (Math.round(n*10)/10).toString().replace(/\.0$/,""); }
+
+/* ======================================================================
+   SMALL VISUAL HELPERS
+   ====================================================================== */
+function avatar(person, cls){
+  const c = TEAM_COLOR[person.team] || "#7b7b85";
+  return `<div class="av ${cls||""}" style="background:linear-gradient(135deg,${c},${lighten(c)})" title="${esc(person.name)}">${esc(initials(person.name)).toUpperCase()}</div>`;
+}
+function lighten(hex){
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)+38, g=((n>>8)&255)+38, b=(n&255)+38;
+  r=Math.min(255,r); g=Math.min(255,g); b=Math.min(255,b);
+  return "#"+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function pill(status){ return `<span class="pill ${STATUS_PILL[status]||"pill-ghost"}"><span class="dot"></span>${esc(status)}</span>`; }
+function projPill(health){ return `<span class="pill ${PROJ_PILL[health]||"pill-ghost"}"><span class="dot"></span>${esc(health)}</span>`; }
+
+function ring(util, status, size, stroke){
+  size = size||66; stroke = stroke||7;
+  const color = STATUS_COLOR[status] || "#7b7b85";
+  const r=(size-stroke)/2, c=2*Math.PI*r;
+  const p = Math.max(0, Math.min(1, util));
+  const len = c*p;
+  const label = util>=99 ? "—" : pct(util);
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px">
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#ececed" stroke-width="${stroke}"/>
+      <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round"
+        stroke-dasharray="${len.toFixed(1)} ${(c-len).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/>
+    </svg>
+    <div class="ring-txt"><b style="color:${util>1?STATUS_COLOR['Over Capacity']:'var(--ink)'}">${label}</b><span>util</span></div>
+  </div>`;
+}
+
+function bar(util, status, withMarker, markerPct){
+  const color = STATUS_COLOR[status] || "#7b7b85";
+  const w = Math.max(2, Math.min(100, util*100));
+  let m = "";
+  if(withMarker && markerPct!=null){ m = `<div class="marker" style="left:${Math.min(100,markerPct*100)}%"></div>`; }
+  return `<div class="track"><div class="fill" style="width:${w}%;background:${color}"></div>${m}</div>`;
+}
+
+function donut(segments, size, stroke){
+  size=size||172; stroke=stroke||24;
+  const r=(size-stroke)/2, c=2*Math.PI*r;
+  const total = segments.reduce((s,x)=>s+x.value,0)||1;
+  let off=0, paths="";
+  segments.forEach(seg=>{
+    if(seg.value<=0) return;
+    const len = c*seg.value/total;
+    const gap = total>1 ? 1.5 : 0; // tiny gap
+    paths += `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${stroke}"
+      stroke-dasharray="${Math.max(0,len-gap).toFixed(1)} ${(c-Math.max(0,len-gap)).toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}"
+      transform="rotate(-90 ${size/2} ${size/2})"/>`;
+    off += len;
+  });
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#f0f0f3" stroke-width="${stroke}"/>
+    ${paths}
+  </svg>`;
+}
+
+/* ======================================================================
+   RENDER ROUTER
+   ====================================================================== */
+function render(){
+  // tabs active state + badges
+  document.querySelectorAll(".tab").forEach(t=> t.classList.toggle("active", t.dataset.view===ui.view));
+  const k = kpis(state);
+  setBadge("badgePeople", k.over, true);
+  setBadge("badgeProjects", k.needSupport, true);
+
+  const root = document.getElementById("content");
+  let html="";
+  if(ui.view==="dashboard") html=renderDashboard();
+  else if(ui.view==="people") html=renderPeople();
+  else if(ui.view==="projects") html=renderProjects();
+  else if(ui.view==="assignments") html=renderAssignments();
+  else if(ui.view==="whatif") html=renderWhatIf();
+  root.innerHTML = `<div class="view">${html}</div>`;
+
+  bindViewEvents();
+  restoreFocus();
+}
+function setBadge(id,val,onlyIfPos){
+  const el = document.getElementById(id); if(!el) return;
+  if(onlyIfPos && val<=0){ el.style.display="none"; return; }
+  el.style.display=""; el.textContent=val;
+}
+
+/* ----------------------------- DASHBOARD ----------------------------- */
+function renderDashboard(){
+  const k = kpis(state);
+  const peopleStats = state.people.map(p=>({p, s:personStats(state,p)}));
+  const dist = statusDistribution(peopleStats);
+
+  // KPI cards
+  const kpiCards = `
+    <div class="kpis">
+      ${kpiCard("Active People", k.activeCount, k.peopleCount+" total", "people", "var(--brand)","var(--brand-tint)")}
+      ${kpiCard("Avg Utilization", pct(k.avgUtil), utilFoot(k.avgUtil), "gauge", utilTextColor(k.avgUtil), utilBgColor(k.avgUtil), true)}
+      ${kpiCard("Over Capacity", k.over, k.over===1?"person needs relief":"people need relief", "alert", "var(--red)","var(--red-bg)")}
+      ${kpiCard("Available Capacity", fmt(k.free), "hrs / week open", "free", "var(--green)","var(--green-bg)")}
+      ${kpiCard("Projects Need Support", k.needSupport, "under-resourced", "project", "var(--amber)","var(--amber-bg)")}
+    </div>`;
+
+  // Team capacity rows
+  const teamRows = TEAMS.map(t=>{
+    const ts = teamStats(state,t);
+    return `<div class="team-row">
+      <span class="team-dot" style="background:${TEAM_COLOR[t]}"></span>
+      <div class="team-name"><b>${esc(t)}</b><span>${ts.count} ${ts.count===1?"person":"people"}</span></div>
+      <div class="team-bar">${bar(ts.util, ts.status)}</div>
+      <div class="team-meta">
+        <span class="util" style="color:${STATUS_COLOR[ts.status]}">${ts.util>=99?"—":pct(ts.util)}</span>
+        <span style="font-size:11px;color:var(--muted)">${fmt(ts.free)} hrs free</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  // Workforce status donut
+  const segs = [
+    {value:dist["Healthy"], color:STATUS_COLOR["Healthy"], label:"Healthy"},
+    {value:dist["Tight"], color:STATUS_COLOR["Tight"], label:"Tight"},
+    {value:dist["Over Capacity"], color:STATUS_COLOR["Over Capacity"], label:"Over Capacity"},
+    {value:dist["Needs Review"], color:STATUS_COLOR["Needs Review"], label:"Needs Review"},
+    {value:dist["Unavailable"], color:STATUS_COLOR["Unavailable"], label:"Unavailable"},
+  ];
+  const legend = segs.filter(s=>true).map(s=>`
+    <div class="legend-item"><span class="dot" style="background:${s.color}"></span>
+      <span class="lg-lab">${s.label}</span><span class="lg-num">${s.value}</span></div>`).join("");
+
+  // Planned vs actual by team
+  const paTeams = TEAMS.map(t=>teamStats(state,t));
+  const paMax = Math.max(1, ...paTeams.map(t=>Math.max(t.planned,t.actual)));
+  const paRows = paTeams.map(t=>`
+    <div class="pa-teamrow">
+      <span class="nm">${esc(t.team)}</span>
+      <div class="bars">
+        <div class="twobar" style="width:${(t.planned/paMax*100).toFixed(1)}%;background:var(--brand)"></div>
+        <div class="twobar" style="width:${(t.actual/paMax*100).toFixed(1)}%;background:#1d1d1f"></div>
+      </div>
+      <span class="vv">${fmt(t.planned)} / ${fmt(t.actual)}</span>
+    </div>`).join("");
+  const paArrow = k.planVsActual>=0 ? "▲" : "▼";
+  const paColor = Math.abs(k.planVsActual)<0.03 ? "var(--muted)" : (k.planVsActual>0?"var(--red)":"var(--green)");
+
+  // Projects needing support
+  const needList = state.projects.map(pr=>({pr, s:projectStats(state,pr)}))
+    .filter(x=> x.s.health==="Needs Support" || x.s.health==="At Risk")
+    .sort((a,b)=>a.s.coverage-b.s.coverage);
+  const needHtml = needList.length ? needList.map(({pr,s})=>`
+    <div class="proj-need">
+      <div class="pn-id"><b>${esc(pr.name)}</b><div class="sub">${esc(pr.code)} · ${esc(pr.priority)} · needs ${fmt(s.gap)} more hrs</div></div>
+      <div class="pn-bar">${bar(s.coverage, s.coverage<0.75?"Over Capacity":"Tight")}</div>
+      <div class="pn-cov" style="color:${PROJ_COLOR[s.health]}">${pct(s.coverage)}</div>
+    </div>`).join("")
+    : emptyMini("All projects are adequately resourced.");
+
+  // Risks
+  const risks = buildRisks(state, peopleStats, k);
+  const riskHtml = risks.length ? risks.map(r=>`
+    <div class="risk">
+      <div class="risk-ico" style="background:${r.bg};color:${r.color}">${r.icon}</div>
+      <div class="risk-body"><b>${esc(r.title)}</b><p>${esc(r.body)}</p></div>
+      <span class="risk-sev" style="background:${r.bg};color:${r.color}">${r.sev}</span>
+    </div>`).join("")
+    : emptyMini("No active workload risks. Nicely balanced!");
+
+  return `
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">Executive Dashboard</h1>
+      <p class="page-sub">A live view of workload, capacity, and delivery risk across HR.</p>
+    </div>
+    <button class="btn btn-primary" data-act="add-assignment">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      New Assignment
+    </button>
+  </div>
+
+  ${kpiCards}
+
+  <div class="dash-grid">
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Team Capacity</h3><span class="hint">planned hours ÷ available capacity</span></div>
+      ${teamRows}
+    </div>
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Workforce Status</h3></div>
+      <div style="display:flex;align-items:center;gap:22px">
+        <div class="ring-wrap" style="width:172px;height:172px">
+          ${donut(segs)}
+          <div class="ring-txt"><div class="donut-center"><b>${state.people.length}</b><span>people</span></div></div>
+        </div>
+        <div class="legend" style="flex:1">${legend}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid-2" style="margin-top:16px">
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Planned vs Actual Hours</h3><span class="hint">this week</span></div>
+      <div class="pa-overall">
+        <div class="pa-big"><div class="lab">Planned</div><div class="val plan">${fmt(k.totalPlanned)}<span style="font-size:14px;color:var(--muted)"> hrs</span></div></div>
+        <div class="pa-big"><div class="lab">Actual</div><div class="val act">${fmt(k.totalActual)}<span style="font-size:14px;color:var(--muted)"> hrs</span></div></div>
+        <div class="pa-big"><div class="lab">Variance</div><div class="val" style="color:${paColor}">${paArrow} ${pct(Math.abs(k.planVsActual))}</div></div>
+        <div style="flex:1;text-align:right;min-width:120px">
+          <span class="legend-item" style="justify-content:flex-end"><span class="dot" style="background:var(--brand)"></span> Planned</span>
+          <span class="legend-item" style="justify-content:flex-end"><span class="dot" style="background:#1d1d1f"></span> Actual</span>
+        </div>
+      </div>
+      <div class="pa-teamlist" style="margin-top:16px">${paRows}</div>
+    </div>
+
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Projects Needing Support</h3><span class="hint">coverage below target</span></div>
+      ${needHtml}
+    </div>
+  </div>
+
+  <div class="panel panel-pad" style="margin-top:16px">
+    <div class="panel-head"><h3>Workload Risks</h3><span class="hint">${risks.length} flagged</span></div>
+    <div class="risk-list">${riskHtml}</div>
+  </div>
+  `;
+}
+
+function statusDistribution(peopleStats){
+  const d = {"Healthy":0,"Tight":0,"Over Capacity":0,"Needs Review":0,"Unavailable":0};
+  peopleStats.forEach(({s})=> d[s.status]=(d[s.status]||0)+1);
+  return d;
+}
+function utilFoot(u){ if(u>1)return "over capacity"; if(u>=0.85)return "running tight"; return "healthy band"; }
+function utilTextColor(u){ if(u>1)return "var(--red)"; if(u>=0.85)return "var(--amber)"; return "var(--green)"; }
+function utilBgColor(u){ if(u>1)return "var(--red-bg)"; if(u>=0.85)return "var(--amber-bg)"; return "var(--green-bg)"; }
+
+function kpiCard(label,val,foot,icon,color,bg,isText){
+  return `<div class="kpi">
+    <div class="k-top"><span class="k-ico" style="background:${bg};color:${color}">${ICON[icon]||""}</span><span class="k-label">${label}</span></div>
+    <div class="k-val" style="${isText?('color:'+color):''}">${val}</div>
+    <div class="k-foot">${esc(foot)}</div>
+  </div>`;
+}
+
+function buildRisks(ds, peopleStats, k){
+  const risks=[];
+  // Over capacity people
+  peopleStats.filter(x=>x.s.status==="Over Capacity").sort((a,b)=>b.s.util-a.s.util).forEach(({p,s})=>{
+    risks.push({title:`${p.name} is over capacity`, body:`${esc(p.role)} · ${fmt(s.planned)} planned hrs vs ${fmt(p.capacity)} capacity (${pct(s.util)}). Consider redistributing work.`,
+      sev:"High", color:"var(--red)", bg:"var(--red-bg)", icon:ICON.alert});
+  });
+  // Needs review (variance)
+  peopleStats.filter(x=>x.s.status==="Needs Review").forEach(({p,s})=>{
+    const dir = s.variance>0 ? "above" : "below";
+    risks.push({title:`${p.name} — actuals ${dir} plan`, body:`Logged ${fmt(s.actual)} actual vs ${fmt(s.planned)} planned hrs (${pct(s.varPct)} variance). Review the estimate.`,
+      sev:"Review", color:"var(--violet)", bg:"var(--violet-bg)", icon:ICON.review});
+  });
+  // Stranded hours from unavailable people
+  ds.people.filter(p=>!p.available).forEach(p=>{
+    const s = personStats(ds,p);
+    if(s.planned>0) risks.push({title:`${p.name} is unavailable`, body:`${fmt(s.planned)} planned hrs across ${s.count} project(s) need to be reassigned.`,
+      sev:"High", color:"var(--red)", bg:"var(--red-bg)", icon:ICON.alert});
+  });
+  // Under-resourced projects
+  ds.projects.map(pr=>({pr,s:projectStats(ds,pr)})).filter(x=>x.s.health==="Needs Support")
+    .sort((a,b)=>a.s.coverage-b.s.coverage).forEach(({pr,s})=>{
+    risks.push({title:`${pr.name} is under-resourced`, body:`${esc(pr.priority)} priority at ${pct(s.coverage)} coverage — ${fmt(s.gap)} hrs short of demand.`,
+      sev:pr.priority==="Critical"?"Critical":"High", color:"var(--amber)", bg:"var(--amber-bg)", icon:ICON.project});
+  });
+  // Plan vs actual drift
+  if(Math.abs(k.planVsActual)>=0.05){
+    const dir = k.planVsActual>0?"above":"below";
+    risks.push({title:`Actuals trending ${pct(Math.abs(k.planVsActual))} ${dir} plan`, body:`Team logged ${fmt(k.totalActual)} hrs against ${fmt(k.totalPlanned)} planned. Re-baseline estimates if this persists.`,
+      sev:"Watch", color:"var(--amber)", bg:"var(--amber-bg)", icon:ICON.gauge});
+  }
+  return risks;
+}
+function emptyMini(msg){ return `<div style="text-align:center;color:var(--muted);padding:24px 10px;font-size:13px">${esc(msg)}</div>`; }
+
+/* ----------------------------- PEOPLE ----------------------------- */
+function renderPeople(){
+  let rows = state.people.map(p=>({p, s:personStats(state,p)}));
+  if(ui.pTeam!=="all") rows = rows.filter(x=>x.p.team===ui.pTeam);
+  if(ui.pStatus!=="all") rows = rows.filter(x=>x.s.status===ui.pStatus);
+  if(ui.pSearch.trim()){
+    const q = ui.pSearch.toLowerCase();
+    rows = rows.filter(x=> x.p.name.toLowerCase().includes(q) || x.p.role.toLowerCase().includes(q) || x.p.team.toLowerCase().includes(q));
+  }
+  rows.sort((a,b)=>{
+    if(ui.pSort==="util-desc") return b.s.util-a.s.util;
+    if(ui.pSort==="util-asc") return a.s.util-b.s.util;
+    if(ui.pSort==="free-desc") return b.s.free-a.s.free;
+    if(ui.pSort==="name") return a.p.name.localeCompare(b.p.name);
+    return 0;
+  });
+
+  const teamOpts = ["all",...TEAMS].map(t=>`<option value="${esc(t)}" ${ui.pTeam===t?"selected":""}>${t==="all"?"All teams":esc(t)}</option>`).join("");
+  const statusOpts = ["all","Healthy","Tight","Over Capacity","Needs Review","Unavailable"].map(s=>`<option value="${esc(s)}" ${ui.pStatus===s?"selected":""}>${s==="all"?"All statuses":esc(s)}</option>`).join("");
+  const sortOpts = [["util-desc","Utilization (high→low)"],["util-asc","Utilization (low→high)"],["free-desc","Most available"],["name","Name (A→Z)"]]
+    .map(([v,l])=>`<option value="${v}" ${ui.pSort===v?"selected":""}>${l}</option>`).join("");
+
+  const cards = rows.length ? rows.map(({p,s})=>personCard(p,s)).join("")
+    : emptyState("No people match your filters","Try clearing search or filters.");
+
+  return `
+  <div class="page-head">
+    <div><h1 class="page-title">People & Workload</h1><p class="page-sub">${state.people.length} team members across ${TEAMS.length} HR teams.</p></div>
+    <button class="btn btn-primary" data-act="add-person">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add Person
+    </button>
+  </div>
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+      <input id="pSearch" type="text" placeholder="Search people, roles, teams…" value="${esc(ui.pSearch)}"/></div>
+    <select class="input" id="pTeam">${teamOpts}</select>
+    <select class="input" id="pStatus">${statusOpts}</select>
+    <select class="input" id="pSort">${sortOpts}</select>
+    <span style="margin-left:auto;color:var(--muted);font-size:12.5px;font-weight:550">${rows.length} shown</span>
+  </div>
+  <div class="cards">${cards}</div>`;
+}
+
+function personCard(p,s){
+  const cls = !p.available ? "is-unavail" : (s.status==="Over Capacity"?"is-over":(s.status==="Needs Review"?"is-review":""));
+  const projChips = s.list.map(a=>{
+    const pr = findProject(state,a.projectId);
+    return pr ? `<span class="chip">${esc(pr.code)}</span>` : "";
+  }).join("");
+  const paMax = Math.max(num(p.capacity), s.planned, s.actual, 1);
+  return `
+  <div class="pcard ${cls}">
+    <div class="pcard-actions">
+      <button class="btn btn-ghost icon-btn" data-act="edit-person" data-id="${p.id}" title="Edit">${ICON.edit}</button>
+      <button class="btn btn-ghost icon-btn" data-act="del-person" data-id="${p.id}" title="Delete">${ICON.trash}</button>
+    </div>
+    <div class="pcard-top">
+      ${avatar(p,"av-lg")}
+      <div class="pcard-id">
+        <p class="pcard-name">${esc(p.name)}</p>
+        <div class="pcard-role">${esc(p.role)}</div>
+        <div style="margin-top:7px">${pill(s.status)}</div>
+      </div>
+    </div>
+    <div class="pcard-mid">
+      ${ring(s.util, s.status, 70, 8)}
+      <div class="pcard-stats">
+        <div class="stat-row"><span class="lab">${esc(p.team)}</span></div>
+        <div class="stat-row"><span class="lab">Planned</span><span class="num">${fmt(s.planned)} / ${fmt(p.capacity)} hrs</span></div>
+        <div class="stat-row"><span class="lab">Available</span><span class="num" style="color:${s.free>0?'var(--green)':'var(--muted)'}">${fmt(s.free)} hrs</span></div>
+      </div>
+    </div>
+    <div class="pa-bars">
+      <div class="pa-line"><span class="pa-lab">Planned</span>${miniBar(s.planned/paMax,"var(--brand)")}<span class="pa-val">${fmt(s.planned)}h</span></div>
+      <div class="pa-line"><span class="pa-lab">Actual</span>${miniBar(s.actual/paMax,"#1d1d1f")}<span class="pa-val">${fmt(s.actual)}h</span></div>
+    </div>
+    <div class="pcard-foot">
+      <div class="proj-chips">${projChips||'<span class="chip" style="background:transparent;color:var(--faint)">No assignments</span>'}</div>
+      <button class="btn btn-sm" data-act="toggle-avail" data-id="${p.id}">${p.available?"Set unavailable":"Set available"}</button>
+    </div>
+  </div>`;
+}
+function miniBar(frac,color){ return `<div class="track" style="flex:1"><div class="fill" style="width:${Math.max(2,Math.min(100,frac*100)).toFixed(1)}%;background:${color}"></div></div>`; }
+
+/* ----------------------------- PROJECTS ----------------------------- */
+function renderProjects(){
+  let rows = state.projects.map(pr=>({pr, s:projectStats(state,pr)}));
+  if(ui.prStatus!=="all") rows = rows.filter(x=>x.s.health===ui.prStatus);
+  if(ui.prPrio!=="all") rows = rows.filter(x=>x.pr.priority===ui.prPrio);
+  if(ui.prSearch.trim()){
+    const q = ui.prSearch.toLowerCase();
+    rows = rows.filter(x=> x.pr.name.toLowerCase().includes(q) || x.pr.code.toLowerCase().includes(q));
+  }
+  rows.sort((a,b)=>a.s.coverage-b.s.coverage);
+
+  const statusOpts = ["all","On Track","At Risk","Needs Support","Over-allocated"].map(s=>`<option value="${esc(s)}" ${ui.prStatus===s?"selected":""}>${s==="all"?"All health":esc(s)}</option>`).join("");
+  const prioOpts = ["all",...PRIORITIES].map(s=>`<option value="${esc(s)}" ${ui.prPrio===s?"selected":""}>${s==="all"?"All priorities":esc(s)}</option>`).join("");
+
+  const cards = rows.length ? rows.map(({pr,s})=>projectCard(pr,s)).join("")
+    : emptyState("No projects match your filters","Try clearing search or filters.");
+
+  return `
+  <div class="page-head">
+    <div><h1 class="page-title">Projects & Assignments</h1><p class="page-sub">${state.projects.length} active HR initiatives and their staffing coverage.</p></div>
+    <button class="btn btn-primary" data-act="add-project">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Add Project
+    </button>
+  </div>
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+      <input id="prSearch" type="text" placeholder="Search projects…" value="${esc(ui.prSearch)}"/></div>
+    <select class="input" id="prStatus">${statusOpts}</select>
+    <select class="input" id="prPrio">${prioOpts}</select>
+    <span style="margin-left:auto;color:var(--muted);font-size:12.5px;font-weight:550">${rows.length} shown</span>
+  </div>
+  <div class="cards">${cards}</div>`;
+}
+
+function projectCard(pr,s){
+  const avs = s.people.slice(0,5).map(p=>avatar(p,"av-sm")).join("");
+  const more = s.people.length>5 ? `<span class="av-more">+${s.people.length-5}</span>` : "";
+  return `
+  <div class="prcard">
+    <div class="prcard-actions">
+      <button class="btn btn-ghost icon-btn" data-act="edit-project" data-id="${pr.id}" title="Edit">${ICON.edit}</button>
+      <button class="btn btn-ghost icon-btn" data-act="del-project" data-id="${pr.id}" title="Delete">${ICON.trash}</button>
+    </div>
+    <div class="prcard-top">
+      <div>
+        <div class="prcard-code">${esc(pr.code)} <span class="prio prio-${pr.priority}" style="margin-left:5px">${esc(pr.priority)}</span></div>
+        <h3 class="prcard-name">${esc(pr.name)}</h3>
+      </div>
+    </div>
+    <div class="cov-head">
+      <span class="big" style="color:${PROJ_COLOR[s.health]}">${pct(s.coverage)}</span>
+      <span class="cap">${fmt(s.planned)} of ${fmt(s.required)} hrs staffed</span>
+    </div>
+    ${bar(s.coverage, s.coverage<0.75?"Over Capacity":(s.coverage<0.95?"Tight":(s.coverage>1.2?"Needs Review":"Healthy")))}
+    <div class="prcard-grid">
+      <div class="mini"><div class="ml">Demand</div><div class="mv">${fmt(s.required)} hrs</div></div>
+      <div class="mini"><div class="ml">${s.gap>0?"Short by":"Surplus"}</div><div class="mv" style="color:${s.gap>0?'var(--red)':'var(--green)'}">${fmt(Math.abs(s.gap))} hrs</div></div>
+      <div class="mini"><div class="ml">Planned</div><div class="mv" style="color:var(--brand)">${fmt(s.planned)} hrs</div></div>
+      <div class="mini"><div class="ml">Actual</div><div class="mv">${fmt(s.actual)} hrs</div></div>
+    </div>
+    <div class="prcard-foot">
+      <div class="av-stack">${avs||'<span style="color:var(--faint);font-size:12px">Unstaffed</span>'}${more}</div>
+      ${projPill(s.health)}
+    </div>
+  </div>`;
+}
+
+/* ----------------------------- ASSIGNMENTS ----------------------------- */
+function renderAssignments(){
+  let rows = state.assignments.map(a=>{
+    const p = findPerson(state,a.personId), pr = findProject(state,a.projectId);
+    return {a, p, pr, variance:num(a.actual)-num(a.planned)};
+  }).filter(x=>x.p && x.pr);
+
+  if(ui.aSearch.trim()){
+    const q = ui.aSearch.toLowerCase();
+    rows = rows.filter(x=> x.p.name.toLowerCase().includes(q) || x.pr.name.toLowerCase().includes(q) || x.pr.code.toLowerCase().includes(q) || String(x.a.role).toLowerCase().includes(q));
+  }
+  rows.sort((a,b)=>{
+    if(ui.aSort==="variance-desc") return Math.abs(b.variance)-Math.abs(a.variance);
+    if(ui.aSort==="planned-desc") return num(b.a.planned)-num(a.a.planned);
+    if(ui.aSort==="person") return a.p.name.localeCompare(b.p.name);
+    if(ui.aSort==="project") return a.pr.name.localeCompare(b.pr.name);
+    return 0;
+  });
+
+  const sortOpts = [["variance-desc","Sort: Variance"],["planned-desc","Sort: Planned hrs"],["person","Sort: Person"],["project","Sort: Project"]]
+    .map(([v,l])=>`<option value="${v}" ${ui.aSort===v?"selected":""}>${l}</option>`).join("");
+
+  const body = rows.length ? rows.map(({a,p,pr,variance})=>{
+    const vCls = Math.abs(variance)<0.5 ? "var-zero" : (variance>0?"var-pos":"var-neg");
+    const vTxt = (variance>0?"+":"")+fmt(variance);
+    return `<tr>
+      <td><div class="td-person">${avatar(p,"av-sm")}<div><b>${esc(p.name)}</b><div style="font-size:11px;color:var(--muted)">${esc(p.team)}</div></div></div></td>
+      <td><b style="font-weight:600">${esc(pr.name)}</b><div style="font-size:11px;color:var(--brand)">${esc(pr.code)}</div></td>
+      <td>${esc(a.role)}</td>
+      <td class="num-cell">${fmt(a.planned)}</td>
+      <td class="num-cell">${fmt(a.actual)}</td>
+      <td class="num-cell ${vCls}">${vTxt}</td>
+      <td class="row-actions">
+        <button class="btn btn-ghost icon-btn" data-act="edit-assignment" data-id="${a.id}" title="Edit">${ICON.edit}</button>
+        <button class="btn btn-ghost icon-btn" data-act="del-assignment" data-id="${a.id}" title="Delete">${ICON.trash}</button>
+      </td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="7">${emptyState("No assignments found","Add one to get started.")}</td></tr>`;
+
+  return `
+  <div class="page-head">
+    <div><h1 class="page-title">Assignment Tracking</h1><p class="page-sub">${state.assignments.length} assignments · planned vs actual hours by person and project.</p></div>
+    <button class="btn btn-primary" data-act="add-assignment">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> New Assignment
+    </button>
+  </div>
+  <div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+      <input id="aSearch" type="text" placeholder="Search by person, project, role…" value="${esc(ui.aSearch)}"/></div>
+    <select class="input" id="aSort">${sortOpts}</select>
+  </div>
+  <div class="panel">
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Person</th><th>Project</th><th>Role</th><th>Planned</th><th>Actual</th><th>Variance</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+/* ----------------------------- WHAT IF ----------------------------- */
+function ensureScenario(){ if(!scenario) scenario = clone(state); }
+function renderWhatIf(){
+  ensureScenario();
+  const base = kpis(state);
+  const now = kpis(scenario);
+
+  const cmp = `
+  <div class="compare">
+    ${cmpCard("Active People", base.activeCount, now.activeCount, "people", +1)}
+    ${cmpCard("Avg Utilization", base.avgUtil, now.avgUtil, "gauge", 0, true)}
+    ${cmpCard("Over Capacity", base.over, now.over, "alert", -1)}
+    ${cmpCard("Available Hrs", base.free, now.free, "free", +1, false, true)}
+    ${cmpCard("Need Support", base.needSupport, now.needSupport, "project", -1)}
+  </div>`;
+
+  // scenario people select options
+  const peopleOpts = scenario.people.map(p=>`<option value="${p.id}">${esc(p.name)}${p.available?"":" (unavailable)"}</option>`).join("");
+  const projOpts = scenario.projects.map(p=>`<option value="${p.id}">${esc(p.code)} · ${esc(p.name)}</option>`).join("");
+  const teamOpts = TEAMS.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+
+  const controls = `
+  <div class="wi-controls">
+    <!-- Add person -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.people}</span> Add a Person</h4>
+      <p class="wi-desc">Model a new hire or contractor joining a team.</p>
+      <div class="field"><label>Name</label><input class="input" id="wiPName" placeholder="e.g. Taylor Brooks"/></div>
+      <div class="field-row">
+        <div class="field"><label>Team</label><select class="input" id="wiPTeam">${teamOpts}</select></div>
+        <div class="field"><label>Capacity (hrs/wk)</label><input class="input" id="wiPCap" type="number" value="40" min="0" max="80"/></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" data-act="wi-add-person">Add to scenario</button>
+    </div>
+
+    <!-- Add project -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.project}</span> Add a Project</h4>
+      <p class="wi-desc">Test the impact of taking on new work.</p>
+      <div class="field"><label>Project name</label><input class="input" id="wiPrName" placeholder="e.g. Benefits Vendor RFP"/></div>
+      <div class="field-row">
+        <div class="field"><label>Demand (hrs/wk)</label><input class="input" id="wiPrReq" type="number" value="30" min="0"/></div>
+        <div class="field"><label>Assign to</label><select class="input" id="wiPrWho">${peopleOpts}</select></div>
+      </div>
+      <div class="field"><label>Hours for that person</label><input class="input" id="wiPrHrs" type="number" value="12" min="0"/></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" data-act="wi-add-project">Add to scenario</button>
+    </div>
+
+    <!-- Availability -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.alert}</span> Change Availability</h4>
+      <p class="wi-desc">What if someone goes on leave — who absorbs the work?</p>
+      <div class="field"><label>Person</label><select class="input" id="wiAvailWho">${peopleOpts}</select></div>
+      <div class="field-row">
+        <button class="btn" style="flex:1;justify-content:center" data-act="wi-avail" data-val="off">Mark unavailable</button>
+        <button class="btn" style="flex:1;justify-content:center" data-act="wi-avail" data-val="on">Mark available</button>
+      </div>
+    </div>
+
+    <!-- Project effort -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.gauge}</span> Adjust Project Effort</h4>
+      <p class="wi-desc">What if a project takes more (or less) effort than planned?</p>
+      <div class="field"><label>Project</label><select class="input" id="wiEffProj">${projOpts}</select></div>
+      <div class="field"><label>Effort multiplier</label>
+        <div class="range-row"><input type="range" id="wiEffRange" min="50" max="200" step="5" value="100"/><span class="range-val" id="wiEffVal">100%</span></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" data-act="wi-effort">Apply effort change</button>
+    </div>
+
+    <!-- Capacity -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.free}</span> Adjust Capacity</h4>
+      <p class="wi-desc">Change someone's available hours (part-time, overtime).</p>
+      <div class="field"><label>Person</label><select class="input" id="wiCapWho">${peopleOpts}</select></div>
+      <div class="field"><label>Weekly capacity</label>
+        <div class="range-row"><input type="range" id="wiCapRange" min="0" max="60" step="2" value="40"/><span class="range-val" id="wiCapVal">40 hrs</span></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" data-act="wi-capacity">Apply capacity</button>
+    </div>
+
+    <!-- Quick scenarios -->
+    <div class="wi-card">
+      <h4><span class="wi-h-ico">${ICON.review}</span> Quick Scenarios</h4>
+      <p class="wi-desc">One-click stress tests on the current data.</p>
+      <button class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px" data-act="wi-quick" data-q="rush">📈 Rush: +25% effort on Critical/High projects</button>
+      <button class="btn" style="width:100%;justify-content:flex-start;margin-bottom:8px" data-act="wi-quick" data-q="leave">🌴 Put the most-loaded person on leave</button>
+      <button class="btn" style="width:100%;justify-content:flex-start" data-act="wi-quick" data-q="hire">➕ Hire into the most over-capacity team</button>
+    </div>
+  </div>`;
+
+  // Scenario team snapshot
+  const teamRows = TEAMS.map(t=>{
+    const ts = teamStats(scenario,t);
+    return `<div class="team-row">
+      <span class="team-dot" style="background:${TEAM_COLOR[t]}"></span>
+      <div class="team-name"><b>${esc(t)}</b><span>${ts.count} ${ts.count===1?"person":"people"}</span></div>
+      <div class="team-bar">${bar(ts.util, ts.status)}</div>
+      <div class="team-meta"><span class="util" style="color:${STATUS_COLOR[ts.status]}">${ts.util>=99?"—":pct(ts.util)}</span><span style="font-size:11px;color:var(--muted)">${fmt(ts.free)} hrs free</span></div>
+    </div>`;
+  }).join("");
+
+  const dist = statusDistribution(scenario.people.map(p=>({p,s:personStats(scenario,p)})));
+  const segs = [
+    {value:dist["Healthy"], color:STATUS_COLOR["Healthy"], label:"Healthy"},
+    {value:dist["Tight"], color:STATUS_COLOR["Tight"], label:"Tight"},
+    {value:dist["Over Capacity"], color:STATUS_COLOR["Over Capacity"], label:"Over Capacity"},
+    {value:dist["Needs Review"], color:STATUS_COLOR["Needs Review"], label:"Needs Review"},
+    {value:dist["Unavailable"], color:STATUS_COLOR["Unavailable"], label:"Unavailable"},
+  ];
+  const legend = segs.map(s=>`<div class="legend-item"><span class="dot" style="background:${s.color}"></span><span class="lg-lab">${s.label}</span><span class="lg-num">${s.value}</span></div>`).join("");
+
+  const logHtml = ui.wiLog.length ? ui.wiLog.map(l=>`<div class="log-item"><span class="lg-dot"></span>${esc(l)}</div>`).join("")
+    : `<div class="log-empty">No changes yet — adjust a control above to model a scenario.</div>`;
+
+  return `
+  <div class="wi-banner">
+    <div class="wi-ico">${ICON.flask}</div>
+    <div>
+      <h3>What-If Scenario Planner</h3>
+      <p>Sandbox changes to people, projects, hours, and capacity. Nothing here touches your live data until you apply it.</p>
+    </div>
+    <div class="wi-actions">
+      <button class="btn" data-act="wi-reset">Reset scenario</button>
+      <button class="btn btn-white" data-act="wi-commit">Apply to live data</button>
+    </div>
+  </div>
+
+  ${cmp}
+  ${controls}
+
+  <div class="dash-grid" style="margin-top:2px">
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Scenario — Team Capacity</h3><span class="hint">live preview</span></div>
+      ${teamRows}
+    </div>
+    <div class="panel panel-pad">
+      <div class="panel-head"><h3>Scenario — Workforce</h3></div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div class="ring-wrap" style="width:158px;height:158px">${donut(segs,158,22)}
+          <div class="ring-txt"><div class="donut-center"><b>${scenario.people.length}</b><span>people</span></div></div></div>
+        <div class="legend" style="flex:1">${legend}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-pad wi-log" style="margin-top:16px">
+    <div class="panel-head"><h3>Scenario Changes</h3><span class="hint">${ui.wiLog.length} change(s)</span></div>
+    ${logHtml}
+  </div>`;
+}
+
+function cmpCard(label, baseV, nowV, icon, goodDir, isPct, isHrs){
+  const fmtV = (v)=> isPct ? pct(v) : (isHrs? fmt(v)+"h" : fmt(v));
+  const diff = nowV - baseV;
+  const changed = Math.abs(diff) > (isPct?0.004:0.05);
+  let cls="flat", arrow="→", txt="no change";
+  if(changed){
+    const improving = goodDir===0 ? false : (Math.sign(diff)===Math.sign(goodDir));
+    cls = goodDir===0 ? "flat" : (improving?"good":"bad");
+    arrow = diff>0 ? "▲" : "▼";
+    txt = (diff>0?"+":"") + (isPct?pct(diff):fmt(diff)) + (isHrs?" hrs":"");
+  }
+  return `<div class="cmp">
+    <div class="cl">${label}</div>
+    <div class="cflow"><span class="base">${fmtV(baseV)}</span><span class="arr">→</span><span class="now">${fmtV(nowV)}</span></div>
+    <div class="delta ${cls}">${arrow} ${txt}</div>
+  </div>`;
+}
+
+/* ======================================================================
+   WHAT-IF ACTIONS
+   ====================================================================== */
+function wiLog(msg){ ui.wiLog.unshift(msg); if(ui.wiLog.length>40) ui.wiLog.pop(); }
+
+function wiAddPerson(){
+  const name = (val("wiPName")||"").trim();
+  const team = val("wiPTeam");
+  const cap = Math.max(0, Number(val("wiPCap"))||0);
+  if(!name){ toast("Enter a name first", true); return; }
+  scenario.people.push({id:uid("u"), name, role:"New Hire", team, capacity:cap, available:true});
+  wiLog(`Added ${name} to ${team} (${cap} hrs/wk).`);
+  toast(`${name} added to scenario`);
+  render();
+}
+function wiAddProject(){
+  const name = (val("wiPrName")||"").trim();
+  const req = Math.max(0, Number(val("wiPrReq"))||0);
+  const who = val("wiPrWho");
+  const hrs = Math.max(0, Number(val("wiPrHrs"))||0);
+  if(!name){ toast("Enter a project name first", true); return; }
+  const code = "P-"+ (900 + scenario.projects.length);
+  const proj = {id:uid("p"), code, name, priority:"Medium", required:req, description:"Scenario project"};
+  scenario.projects.push(proj);
+  if(who && hrs>0){ scenario.assignments.push({id:uid("a"), personId:who, projectId:proj.id, role:"Contributor", planned:hrs, actual:0}); }
+  const p = findPerson(scenario,who);
+  wiLog(`Added project "${name}" (${req} hrs demand)${p&&hrs>0?`, assigned ${hrs}h to ${p.name}`:""}.`);
+  toast("Project added to scenario");
+  render();
+}
+function wiAvail(state2, on){
+  const who = val("wiAvailWho");
+  const p = findPerson(scenario, who);
+  if(!p) return;
+  p.available = on;
+  wiLog(`${p.name} marked ${on?"available":"unavailable"}.`);
+  toast(`${p.name} is now ${on?"available":"unavailable"}`);
+  render();
+}
+function wiEffort(){
+  const pid = val("wiEffProj");
+  const mult = (Number(val("wiEffRange"))||100)/100;
+  const pr = findProject(scenario, pid);
+  if(!pr) return;
+  projectAssignments(scenario, pid).forEach(a=>{ a.planned = Math.round(num(a.planned)*mult*10)/10; });
+  pr.required = Math.round(num(pr.required)*mult*10)/10;
+  wiLog(`${pr.name} effort set to ${Math.round(mult*100)}% of plan.`);
+  toast(`Adjusted ${pr.name} effort to ${Math.round(mult*100)}%`);
+  render();
+}
+function wiCapacity(){
+  const who = val("wiCapWho");
+  const cap = Number(val("wiCapRange"))||0;
+  const p = findPerson(scenario, who);
+  if(!p) return;
+  p.capacity = cap;
+  wiLog(`${p.name} capacity set to ${cap} hrs/wk.`);
+  toast(`${p.name} capacity → ${cap} hrs`);
+  render();
+}
+function wiQuick(q){
+  if(q==="rush"){
+    scenario.projects.filter(p=>p.priority==="Critical"||p.priority==="High").forEach(pr=>{
+      projectAssignments(scenario,pr.id).forEach(a=> a.planned = Math.round(num(a.planned)*1.25*10)/10);
+      pr.required = Math.round(num(pr.required)*1.25*10)/10;
+    });
+    wiLog("Rush scenario: +25% effort applied to all Critical & High projects.");
+    toast("Applied rush scenario");
+  } else if(q==="leave"){
+    const ranked = scenario.people.filter(p=>p.available).map(p=>({p,s:personStats(scenario,p)})).sort((a,b)=>b.s.planned-a.s.planned);
+    if(ranked[0]){ ranked[0].p.available=false; wiLog(`${ranked[0].p.name} (most loaded) put on leave.`); toast(`${ranked[0].p.name} on leave`); }
+  } else if(q==="hire"){
+    const t = TEAMS.map(t=>teamStats(scenario,t)).sort((a,b)=>b.util-a.util)[0];
+    if(t){ scenario.people.push({id:uid("u"), name:"New Hire", role:"Team Member", team:t.team, capacity:40, available:true}); wiLog(`Hired a new 40 hr/wk team member into ${t.team} (most loaded team).`); toast(`Added hire to ${t.team}`); }
+  }
+  render();
+}
+function wiReset(){ scenario = clone(state); ui.wiLog=[]; toast("Scenario reset to live data"); render(); }
+function wiCommit(){
+  confirmDialog("Apply scenario to live data?", "This will overwrite your current saved data with the scenario — people, projects, and assignments. This can't be undone (but you can always Reset to demo data).", ()=>{
+    state = clone(scenario);
+    save();
+    ui.wiLog=[];
+    toast("Scenario applied to live data");
+    render();
+  });
+}
+
+/* ======================================================================
+   MODALS (add/edit person / project / assignment) + confirm
+   ====================================================================== */
+function openModal(html){ document.getElementById("modalRoot").innerHTML = `<div class="overlay" data-overlay>${html}</div>`; }
+function closeModal(){ document.getElementById("modalRoot").innerHTML=""; }
+
+function assignmentModal(existing){
+  const a = existing || {personId:state.people[0]&&state.people[0].id, projectId:state.projects[0]&&state.projects[0].id, role:"Contributor", planned:8, actual:0};
+  const pOpts = state.people.map(p=>`<option value="${p.id}" ${p.id===a.personId?"selected":""}>${esc(p.name)} — ${esc(p.team)}</option>`).join("");
+  const prOpts = state.projects.map(p=>`<option value="${p.id}" ${p.id===a.projectId?"selected":""}>${esc(p.code)} · ${esc(p.name)}</option>`).join("");
+  openModal(`
+    <div class="modal">
+      <div class="modal-head"><h3>${existing?"Edit":"New"} Assignment</h3><button class="btn btn-ghost icon-btn" data-act="modal-close">${ICON.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Person</label><select class="input" id="mPerson" style="width:100%">${pOpts}</select></div>
+        <div class="field"><label>Project</label><select class="input" id="mProject" style="width:100%">${prOpts}</select></div>
+        <div class="field"><label>Role on project</label><input class="input" id="mRole" style="width:100%" value="${esc(a.role)}" placeholder="e.g. Lead, Analyst"/></div>
+        <div class="field-row">
+          <div class="field"><label>Planned hrs / week</label><input class="input" id="mPlanned" type="number" min="0" step="0.5" value="${esc(a.planned)}"/></div>
+          <div class="field"><label>Actual hrs / week</label><input class="input" id="mActual" type="number" min="0" step="0.5" value="${esc(a.actual)}"/></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-act="modal-close">Cancel</button>
+        <button class="btn btn-primary" data-act="save-assignment" data-id="${existing?existing.id:""}">${existing?"Save changes":"Add assignment"}</button>
+      </div>
+    </div>`);
+}
+function saveAssignment(id){
+  const rec = {personId:val("mPerson"), projectId:val("mProject"), role:(val("mRole")||"Contributor").trim()||"Contributor",
+    planned:Math.max(0,Number(val("mPlanned"))||0), actual:Math.max(0,Number(val("mActual"))||0)};
+  if(id){ const a = state.assignments.find(x=>x.id===id); if(a) Object.assign(a, rec); toast("Assignment updated"); }
+  else { state.assignments.push(Object.assign({id:uid("a")}, rec)); toast("Assignment added"); }
+  save(); closeModal(); render();
+}
+
+function personModal(existing){
+  const p = existing || {name:"", role:"", team:TEAMS[0], capacity:40, available:true};
+  const teamOpts = TEAMS.map(t=>`<option value="${esc(t)}" ${t===p.team?"selected":""}>${esc(t)}</option>`).join("");
+  openModal(`
+    <div class="modal">
+      <div class="modal-head"><h3>${existing?"Edit":"Add"} Person</h3><button class="btn btn-ghost icon-btn" data-act="modal-close">${ICON.x}</button></div>
+      <div class="modal-body">
+        <div class="field"><label>Full name</label><input class="input" id="mName" style="width:100%" value="${esc(p.name)}" placeholder="e.g. Jordan Lee"/></div>
+        <div class="field"><label>Role / title</label><input class="input" id="mRole2" style="width:100%" value="${esc(p.role)}" placeholder="e.g. HR Generalist"/></div>
+        <div class="field-row">
+          <div class="field"><label>Team</label><select class="input" id="mTeam">${teamOpts}</select></div>
+          <div class="field"><label>Capacity (hrs/wk)</label><input class="input" id="mCap" type="number" min="0" max="80" value="${esc(p.capacity)}"/></div>
+        </div>
+        <div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="mAvail" ${p.available?"checked":""}/> Currently available</label></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-act="modal-close">Cancel</button>
+        <button class="btn btn-primary" data-act="save-person" data-id="${existing?existing.id:""}">${existing?"Save changes":"Add person"}</button>
+      </div>
+    </div>`);
+}
+function savePerson(id){
+  const name = (val("mName")||"").trim();
+  if(!name){ toast("Name is required", true); return; }
+  const rec = {name, role:(val("mRole2")||"Team Member").trim()||"Team Member", team:val("mTeam"),
+    capacity:Math.max(0,Number(val("mCap"))||0), available:document.getElementById("mAvail").checked};
+  if(id){ const p = findPerson(state,id); if(p) Object.assign(p,rec); toast("Person updated"); }
+  else { state.people.push(Object.assign({id:uid("u")},rec)); toast("Person added"); }
+  save(); closeModal(); render();
+}
+
+function projectModal(existing){
+  const p = existing || {code:nextProjectCode(), name:"", priority:"Medium", required:30, description:""};
+  const prioOpts = PRIORITIES.map(x=>`<option value="${x}" ${x===p.priority?"selected":""}>${x}</option>`).join("");
+  openModal(`
+    <div class="modal">
+      <div class="modal-head"><h3>${existing?"Edit":"Add"} Project</h3><button class="btn btn-ghost icon-btn" data-act="modal-close">${ICON.x}</button></div>
+      <div class="modal-body">
+        <div class="field-row">
+          <div class="field" style="flex:0 0 110px"><label>Code</label><input class="input" id="mCode" style="width:100%" value="${esc(p.code)}"/></div>
+          <div class="field"><label>Project name</label><input class="input" id="mPName" style="width:100%" value="${esc(p.name)}" placeholder="e.g. Benefits RFP"/></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Priority</label><select class="input" id="mPrio">${prioOpts}</select></div>
+          <div class="field"><label>Demand (hrs/wk)</label><input class="input" id="mReq" type="number" min="0" value="${esc(p.required)}"/></div>
+        </div>
+        <div class="field"><label>Description</label><input class="input" id="mDesc" style="width:100%" value="${esc(p.description||"")}" placeholder="Short summary"/></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-act="modal-close">Cancel</button>
+        <button class="btn btn-primary" data-act="save-project" data-id="${existing?existing.id:""}">${existing?"Save changes":"Add project"}</button>
+      </div>
+    </div>`);
+}
+function nextProjectCode(){
+  let max=100; state.projects.forEach(p=>{ const m=/P-(\d+)/.exec(p.code||""); if(m) max=Math.max(max,Number(m[1])); });
+  return "P-"+(max+1);
+}
+function saveProject(id){
+  const name = (val("mPName")||"").trim();
+  if(!name){ toast("Project name is required", true); return; }
+  const rec = {code:(val("mCode")||"").trim()||nextProjectCode(), name, priority:val("mPrio"),
+    required:Math.max(0,Number(val("mReq"))||0), description:(val("mDesc")||"").trim()};
+  if(id){ const p = findProject(state,id); if(p) Object.assign(p,rec); toast("Project updated"); }
+  else { state.projects.push(Object.assign({id:uid("p")},rec)); toast("Project added"); }
+  save(); closeModal(); render();
+}
+
+function confirmDialog(title, body, onYes, danger){
+  openModal(`
+    <div class="modal" style="max-width:420px">
+      <div class="modal-head"><h3>${esc(title)}</h3></div>
+      <div class="modal-body"><p class="confirm-text">${esc(body)}</p></div>
+      <div class="modal-foot">
+        <button class="btn" data-act="modal-close">Cancel</button>
+        <button class="btn ${danger?"btn-danger":"btn-primary"}" id="confirmYes">${danger?"Delete":"Confirm"}</button>
+      </div>
+    </div>`);
+  document.getElementById("confirmYes").addEventListener("click", ()=>{ closeModal(); onYes&&onYes(); });
+}
+
+/* ======================================================================
+   EXPORT
+   ====================================================================== */
+function download(filename, text, type){
+  const blob = new Blob([text], {type:type||"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+function exportCSV(){
+  const head = ["Person","Role/Title","Team","Capacity (hrs)","Available","Project Code","Project","Project Role","Planned (hrs)","Actual (hrs)","Variance (hrs)","Person Status"];
+  const rows = state.assignments.map(a=>{
+    const p = findPerson(state,a.personId), pr = findProject(state,a.projectId);
+    if(!p||!pr) return null;
+    const s = personStats(state,p);
+    return [p.name,p.role,p.team,p.capacity,p.available?"Yes":"No",pr.code,pr.name,a.role,a.planned,a.actual,(num(a.actual)-num(a.planned)),s.status];
+  }).filter(Boolean);
+  const csv = [head, ...rows].map(r=> r.map(csvCell).join(",")).join("\r\n");
+  download("swg-hr-assignments-"+stamp()+".csv", csv, "text/csv");
+  toast("CSV exported");
+}
+function csvCell(v){ const s = String(v==null?"":v); return /[",\r\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+function exportJSON(){
+  download("swg-hr-resource-data-"+stamp()+".json", JSON.stringify(state, null, 2), "application/json");
+  toast("JSON exported");
+}
+function stamp(){ const d=new Date(); return d.getFullYear()+""+pad(d.getMonth()+1)+pad(d.getDate()); }
+function pad(n){ return String(n).padStart(2,"0"); }
+
+/* ======================================================================
+   TOASTS
+   ====================================================================== */
+let toastTimer;
+function toast(msg, warn){
+  const box = document.getElementById("toasts");
+  const el = document.createElement("div");
+  el.className="toast";
+  el.innerHTML = `${warn?'<svg viewBox="0 0 24 24" fill="none" stroke="#ffcf5f" stroke-width="2" stroke-linecap="round"><path d="M12 8v5M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>':ICON.check}<span>${esc(msg)}</span>`;
+  box.appendChild(el);
+  setTimeout(()=>{ el.classList.add("out"); setTimeout(()=>el.remove(), 320); }, 2400);
+}
+
+/* ======================================================================
+   EVENT WIRING
+   ====================================================================== */
+function val(id){ const el = document.getElementById(id); return el?el.value:""; }
+
+function bindViewEvents(){
+  // People filters
+  hook("pSearch","input", e=>{ ui.pSearch=e.target.value; ui.focusId="pSearch"; render(); });
+  hook("pTeam","change", e=>{ ui.pTeam=e.target.value; render(); });
+  hook("pStatus","change", e=>{ ui.pStatus=e.target.value; render(); });
+  hook("pSort","change", e=>{ ui.pSort=e.target.value; render(); });
+  // Projects filters
+  hook("prSearch","input", e=>{ ui.prSearch=e.target.value; ui.focusId="prSearch"; render(); });
+  hook("prStatus","change", e=>{ ui.prStatus=e.target.value; render(); });
+  hook("prPrio","change", e=>{ ui.prPrio=e.target.value; render(); });
+  // Assignments
+  hook("aSearch","input", e=>{ ui.aSearch=e.target.value; ui.focusId="aSearch"; render(); });
+  hook("aSort","change", e=>{ ui.aSort=e.target.value; render(); });
+  // What-If ranges
+  hook("wiEffRange","input", e=>{ const v=document.getElementById("wiEffVal"); if(v) v.textContent=e.target.value+"%"; });
+  hook("wiCapRange","input", e=>{ const v=document.getElementById("wiCapVal"); if(v) v.textContent=e.target.value+" hrs"; });
+}
+function hook(id,evt,fn){ const el=document.getElementById(id); if(el) el.addEventListener(evt,fn); }
+
+function restoreFocus(){
+  if(!ui.focusId) return;
+  const el = document.getElementById(ui.focusId);
+  if(el){ el.focus(); const v=el.value; el.value=""; el.value=v; }
+  ui.focusId=null;
+}
+
+// Global delegated click handler
+document.addEventListener("click", (e)=>{
+  const overlay = e.target.closest("[data-overlay]");
+  if(overlay && e.target===overlay){ closeModal(); return; }
+
+  const t = e.target.closest("[data-act]");
+  if(!t) return;
+  const act = t.dataset.act, id = t.dataset.id;
+  switch(act){
+    case "export-csv": exportCSV(); break;
+    case "export-json": exportJSON(); break;
+    case "reset-demo": confirmDialog("Reset to demo data?","This replaces everything with the original sample dataset.", resetDemo); break;
+
+    case "add-assignment": assignmentModal(null); break;
+    case "edit-assignment": { const a=state.assignments.find(x=>x.id===id); if(a) assignmentModal(a); break; }
+    case "del-assignment": { const a=state.assignments.find(x=>x.id===id); if(a){ const p=findPerson(state,a.personId),pr=findProject(state,a.projectId);
+        confirmDialog("Delete assignment?", `${p?p.name:"?"} on ${pr?pr.name:"?"} will be removed.`, ()=>{ state.assignments=state.assignments.filter(x=>x.id!==id); save(); toast("Assignment deleted"); render(); }, true);} break; }
+
+    case "add-person": personModal(null); break;
+    case "edit-person": { const p=findPerson(state,id); if(p) personModal(p); break; }
+    case "del-person": { const p=findPerson(state,id); if(p) confirmDialog("Delete "+p.name+"?","This also removes their "+personAssignments(state,id).length+" assignment(s).", ()=>{ state.people=state.people.filter(x=>x.id!==id); state.assignments=state.assignments.filter(a=>a.personId!==id); save(); toast("Person deleted"); render(); }, true); break; }
+    case "toggle-avail": { const p=findPerson(state,id); if(p){ p.available=!p.available; save(); toast(p.name+" is now "+(p.available?"available":"unavailable")); render(); } break; }
+
+    case "add-project": projectModal(null); break;
+    case "edit-project": { const p=findProject(state,id); if(p) projectModal(p); break; }
+    case "del-project": { const p=findProject(state,id); if(p) confirmDialog("Delete "+p.name+"?","This also removes "+projectAssignments(state,id).length+" assignment(s) to it.", ()=>{ state.projects=state.projects.filter(x=>x.id!==id); state.assignments=state.assignments.filter(a=>a.projectId!==id); save(); toast("Project deleted"); render(); }, true); break; }
+
+    case "save-assignment": saveAssignment(id||null); break;
+    case "save-person": savePerson(id||null); break;
+    case "save-project": saveProject(id||null); break;
+    case "modal-close": closeModal(); break;
+
+    case "wi-add-person": wiAddPerson(); break;
+    case "wi-add-project": wiAddProject(); break;
+    case "wi-avail": wiAvail(null, t.dataset.val==="on"); break;
+    case "wi-effort": wiEffort(); break;
+    case "wi-capacity": wiCapacity(); break;
+    case "wi-quick": wiQuick(t.dataset.q); break;
+    case "wi-reset": wiReset(); break;
+    case "wi-commit": wiCommit(); break;
+  }
+});
+
+// Tabs
+document.getElementById("tabs").addEventListener("click", (e)=>{
+  const tab = e.target.closest(".tab"); if(!tab) return;
+  ui.view = tab.dataset.view;
+  if(ui.view==="whatif") ensureScenario();
+  window.scrollTo({top:0, behavior:"smooth"});
+  render();
+});
+
+// Escape closes modal
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") closeModal(); });
+
+/* ======================================================================
+   ICONS
+   ====================================================================== */
+const ICON = {
+  people:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0111 0M16 11a3 3 0 100-6M20.5 19a5.2 5.2 0 00-4.5-5"/></svg>`,
+  gauge:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18a8 8 0 1114 0"/><path d="M12 18l4-5"/></svg>`,
+  alert:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>`,
+  free:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  project:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`,
+  review:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>`,
+  edit:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>`,
+  trash:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/></svg>`,
+  x:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+  check:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+  flask:`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L5 18a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/><path d="M7.5 14h9"/></svg>`
+};
+
+/* ======================================================================
+   BOOT
+   ====================================================================== */
+function boot(){
+  state = load() || demoData();
+  if(!load()) save();
+  document.getElementById("whoDate").textContent = new Date().toLocaleDateString(undefined,{weekday:"short", month:"short", day:"numeric", year:"numeric"});
+  render();
+}
+boot();
+
+})();
+</script>
+</body>
+</html>
